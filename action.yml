@@ -20,6 +20,9 @@ inputs:
   exclude_packages:
     description: 'Packages to exclude from running cargo bloat onto.'
     required: false
+  include_packages:
+    description: 'Packages to include from running cargo bloat onto.'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
