@@ -33642,11 +33642,15 @@ async function runCargoTree(cargoPath, packageName) {
 }
 async function getCargoPackages(cargoPath) {
     const exclude_packages = core.getInput("exclude_packages").split(" ");
+    const include_packages = core.getInput("exclude_packages").split(" ");
     const args = ['metadata', '--no-deps', '--format-version=1'];
     const output = await captureOutput(cargoPath, args);
     let result = JSON.parse(output).packages;
     if (exclude_packages.length > 0) {
         result = result.filter(pack => !exclude_packages.includes(pack.name));
+    }
+    if (include_packages.length > 0) {
+        result = result.filter(pack => include_packages.includes(pack.name));
     }
     return result;
 }
