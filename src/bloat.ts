@@ -60,7 +60,6 @@ export async function runCargoBloat(cargoPath: string, packageName: string): Pro
 
   const flags = [
     '--release',
-    '--all-features',
   ]
 
   if (!noCrates) {
@@ -88,7 +87,6 @@ export async function runCargoTree(cargoPath: string, packageName: string): Prom
   const args = (optionalArgs.length > 0) ? ['tree', ...optionalArgs.split(" ")] : [
     'tree',
     '--prefix-depth',
-    '--all-features',
     '--no-dev-dependencies',
     '-p',
     packageName
