@@ -3244,7 +3244,6 @@ async function runCargoBloat(cargoPath, packageName) {
     const noCrates = Object(core.getInput)("by_function");
     const flags = [
         '--release',
-        '--all-features',
     ];
     if (!noCrates) {
         flags.push('--crates');
@@ -3268,7 +3267,6 @@ async function runCargoTree(cargoPath, packageName) {
     const args = (optionalArgs.length > 0) ? ['tree', ...optionalArgs.split(" ")] : [
         'tree',
         '--prefix-depth',
-        '--all-features',
         '--no-dev-dependencies',
         '-p',
         packageName
@@ -5861,7 +5859,7 @@ module.exports = function (rows_, opts) {
     var stringLength = opts.stringLength
         || function (s) { return String(s).length; }
     ;
-    
+
     var dotsizes = reduce(rows_, function (acc, row) {
         forEach(row, function (c, ix) {
             var n = dotindex(c);
@@ -5869,7 +5867,7 @@ module.exports = function (rows_, opts) {
         });
         return acc;
     }, []);
-    
+
     var rows = map(rows_, function (row) {
         return map(row, function (c_, ix) {
             var c = String(c_);
@@ -5883,7 +5881,7 @@ module.exports = function (rows_, opts) {
             else return c;
         });
     });
-    
+
     var sizes = reduce(rows, function (acc, row) {
         forEach(row, function (c, ix) {
             var n = stringLength(c);
@@ -5891,7 +5889,7 @@ module.exports = function (rows_, opts) {
         });
         return acc;
     }, []);
-    
+
     return map(rows, function (row) {
         return map(row, function (c, ix) {
             var n = (sizes[ix] - stringLength(c)) || 0;
@@ -5904,7 +5902,7 @@ module.exports = function (rows_, opts) {
                     + c + Array(Math.floor(n / 2 + 1)).join(' ')
                 ;
             }
-            
+
             return c + s;
         }).join(hsep).replace(/\s+$/, '');
     }).join('\n');
@@ -34594,7 +34592,7 @@ exports.exec = exec;
 /******/ },
 /******/ function(__webpack_require__) { // webpackRuntimeModules
 /******/ 	"use strict";
-/******/ 
+/******/
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	!function() {
 /******/ 		__webpack_require__.nmd = function(module) {
@@ -34611,7 +34609,7 @@ exports.exec = exec;
 /******/ 			return module;
 /******/ 		};
 /******/ 	}();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	!function() {
 /******/ 		// define __esModule on exports
@@ -34622,7 +34620,7 @@ exports.exec = exec;
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
 /******/ 	}();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/define property getter */
 /******/ 	!function() {
 /******/ 		// define getter function for harmony exports
@@ -34633,7 +34631,7 @@ exports.exec = exec;
 /******/ 			}
 /******/ 		};
 /******/ 	}();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/create fake namespace object */
 /******/ 	!function() {
 /******/ 		// create a fake namespace object
@@ -34652,7 +34650,7 @@ exports.exec = exec;
 /******/ 			return ns;
 /******/ 		};
 /******/ 	}();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	!function() {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -34664,6 +34662,6 @@ exports.exec = exec;
 /******/ 			return getter;
 /******/ 		};
 /******/ 	}();
-/******/ 	
+/******/
 /******/ }
 );
