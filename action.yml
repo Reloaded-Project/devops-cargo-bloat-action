@@ -1,28 +1,82 @@
-name: 'cargo-bloat'
+name: 'devops-cargo-bloat'
 description: 'Track rust bloat across builds'
-author: 'orf'
+author: 'orf, wsxiaoys, Kobzol, teymour-aldridge, Vrixyz, Sewer56'
 branding:
   icon: box
-  color: blue
+  color: red
 inputs:
   token:
     description: 'Github token to use'
     required: true
-  bloat_args:
+  bloat-args:
     description: 'Custom arguments to pass to cargo bloat'
     required: false
-  tree_args:
+  tree-args:
     description: 'Custom arguments to pass to cargo tree'
     required: false
-  by_function:
+  by-function:
     description: 'If set, display per-function bloat instead of per-crate bloat.'
     required: false
-  exclude_packages:
+  exclude-packages:
     description: 'Packages to exclude from running cargo bloat onto.'
     required: false
-  include_packages:
+  include-packages:
     description: 'Packages to include from running cargo bloat onto.'
     required: false
+  toolchain:
+    description: 'Rust toolchain to use for running cargo-bloat'
+    default: 'stable'
+    required: false
+  target:
+    description: 'Target triple to install for the Rust toolchain'
+    required: false
+  pre-script:
+    description: 'Script to run before invoking dist/index.js'
+    required: false
+  pre-script-shell:
+    description: 'Shell to use for running the pre-script'
+    default: 'bash'
+    required: false
+  install-rust:
+    description: 'Determines if Rust should be installed by the action'
+    default: 'true'
+    required: false
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: 'composite'
+  steps:
+    - name: Install Rust toolchain
+      if: inputs.install-rust == 'true'
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        matcher: false
+        cache: true
+        toolchain: ${{ inputs.toolchain }}
+        target: ${{ inputs.target }}
+
+    - name: Get current default toolchain
+      if: inputs.install-rust == 'true'
+      id: get_default_toolchain
+      run: echo "default_toolchain=$(rustup show active-toolchain | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+    - name: Switch to specified toolchain
+      if: inputs.install-rust == 'true'
+      run: rustup default ${{ inputs.toolchain }}
+
+    - name: Run pre-script
+      if: inputs.pre-script
+      run: ${{ inputs.pre-script }}
+      shell: ${{ inputs.pre-script-shell }}
+
+    - name: Run dist/index.js
+      run: node dist/index.js
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        BLOAT_ARGS: ${{ inputs.bloat-args }}
+        TREE_ARGS: ${{ inputs.tree-args }}
+        BY_FUNCTION: ${{ inputs.by-function }}
+        EXCLUDE_PACKAGES: ${{ inputs.exclude-packages }}
+        INCLUDE_PACKAGES: ${{ inputs.include-packages }}
+
+    - name: Revert to original toolchain
+      if: inputs.install-rust == 'true'
+      run: rustup default ${{ steps.get_default_toolchain.outputs.default_toolchain }}

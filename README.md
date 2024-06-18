@@ -10,7 +10,6 @@ how much each crate contributes to that size, and a list of changes to your depe
 - [Cargo Bloat Action :rocket:](#cargo-bloat-action-rocket)
   - [Example Workflow](#example-workflow)
   - [Inputs](#inputs)
-  - [How it works](#how-it-works)
   - [Tips](#tips)
   - [Why?](#why)
   - [Contribute](#contribute)
@@ -28,7 +27,7 @@ on: # rebuild any PRs and main branch changes
     branches:
       - master
 
-name: bloat
+name: Compare Binary Size
 
 jobs:
   cargo_bloat:
@@ -44,18 +43,26 @@ jobs:
 
 ## Inputs
 
-* `token` (required) - GitHub token to use for creating comments.
-* `by_function` - Display per-function bloat instead of per-crate bloat. Default is false.
-* `bloat_args` - Custom arguments to pass to `cargo bloat`.
-* `tree_args` - Custom arguments to pass to `cargo tree`.
-* `exclude_packages` - Packages to exclude from running `cargo bloat` onto.
-* `include_packages` - Packages to include from running `cargo bloat` onto.
+| Input              | Description                                           | Required | Default  |
+| ------------------ | ----------------------------------------------------- | -------- | -------- |
+| `token`            | GitHub token to use for creating comments             | Yes      |          |
+| `by-function`      | Display per-function bloat instead of per-crate bloat | No       | `false`  |
+| `bloat-args`       | Custom arguments to pass to `cargo bloat`             | No       |          |
+| `tree-args`        | Custom arguments to pass to `cargo tree`              | No       |          |
+| `exclude-packages` | Packages to exclude from running `cargo bloat` onto   | No       |          |
+| `include-packages` | Packages to include from running `cargo bloat` onto   | No       |          |
+| `toolchain`        | The toolchain to use                                  | No       | `stable` |
+| `target`           | Target triple to install for the Rust toolchain       | No       |          |
+| `pre-script`       | Script to run before invoking `dist/index.js`         | No       |          |
+| `pre-script-shell` | Shell to use for running the pre-script               | No       | `bash`   |
+| `install-rust`     | Determines if Rust should be installed by the action  | No       | `true`   |
 
-## How it works
+The `pre-script` should ideally be a `.sh`, `.ps1` file, or whatever is relevant for your shell of choice.
 
-* This action uses `cargo bloat` and `cargo tree` commands to analyze the Rust binary.
-* It compares the binary size between the current commit and a base commit (usually the base branch of the PR).
-* The difference in binary size and dependency tree is posted as a comment on the Pull Request.
+By default, this action will install Rust for you, but you can opt out of this by setting `install-rust` to `false`.
+
+If you install rust through the script, any code inside the script, including `pre-script` will use
+the toolchain defined in `toolchain`. After the action exits, the toolchain will be reverted to default.
 
 ## Tips
 
@@ -72,7 +79,9 @@ steps:
     uses: Reloaded-Project/devops-cargo-bloat-action@v1
     with:
       token: ${{ secrets.GITHUB_TOKEN }}
-      bloat_args: "-Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort --target x86_64-unknown-linux-gnu --profile profile --crate-type cdylib"
+      bloat-args: "-Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort --target x86_64-unknown-linux-gnu --profile profile --crate-type cdylib"
+      toolchain: nightly
+      target: x86_64-unknown-linux-gnu
 ```
 
 For completeness, I define the profile in `Cargo.toml` like this:
