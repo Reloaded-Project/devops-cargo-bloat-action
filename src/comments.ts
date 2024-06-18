@@ -3,7 +3,7 @@ import {GitHub} from "@actions/github/lib/utils";
 import {context} from '@actions/github'
 import * as core from '@actions/core'
 import {SnapshotDifference} from './snapshots'
-import fileSize from 'filesize'
+import {filesize} from "filesize";
 import table from 'text-table'
 import {shouldIncludeInDiff} from "./utils"
 
@@ -14,7 +14,7 @@ export function githubClient(): InstanceType<typeof GitHub> {
 
 async function postNewComment(message: string): Promise<void> {
   const client = githubClient()
-  await client.issues.createComment({
+  await client.rest.issues.createComment({
     body: message,
     issue_number: context.issue.number,
     owner: context.issue.owner,
@@ -28,7 +28,7 @@ async function updateComment(
 ): Promise<void> {
   const client = githubClient()
 
-  await client.issues.updateComment({
+  await client.rest.issues.updateComment({
     body: message,
     comment_id,
     owner: context.issue.owner,
@@ -43,7 +43,7 @@ export async function createOrUpdateComment(
   core.info(`Find comments for issue: ${github.context.issue.number}`)
   const client = githubClient()
 
-  const comments = await client.issues.listComments({
+  const comments = await client.rest.issues.listComments({
     owner: context.issue.owner,
     repo: context.issue.repo,
     issue_number: context.issue.number,
@@ -61,7 +61,7 @@ export async function createOrUpdateComment(
 
   const ourComments = comments.data.filter(v => {
     // Is there a better way to do this?
-    return v.user.login == 'github-actions[bot]' && v.body.includes(toolchain)
+    return v.user?.login == 'github-actions[bot]' && v.body?.includes(toolchain)
   })
 
   if (!ourComments.length) {
@@ -84,38 +84,38 @@ export function createSnapshotComment(
       return
     }
     if (d.old === d.new) {
-      crateTableRows.push([`${d.name}`, fileSize(d.new as number)])
+      crateTableRows.push([`${d.name}`, filesize(d.new as number)])
     } else {
       if (d.old) {
-        crateTableRows.push([`- ${d.name}`, fileSize(d.old)])
+        crateTableRows.push([`- ${d.name}`, filesize(d.old)])
       }
       if (d.new) {
-        crateTableRows.push([`+ ${d.name}`, fileSize(d.new)])
+        crateTableRows.push([`+ ${d.name}`, filesize(d.new)])
       }
     }
   })
 
   const sizeTableRows: Array<[string, string, string]> = []
   if (shouldIncludeInDiff(diff.currentSize, diff.oldSize)) {
-    sizeTableRows.push(['- Size', fileSize(diff.oldSize), ''])
+    sizeTableRows.push(['- Size', filesize(diff.oldSize), ''])
     sizeTableRows.push([
       '+ Size',
-      `${fileSize(diff.currentSize)}`,
-      `${diff.sizeDifference > 0 ? '+' : ''}${fileSize(diff.sizeDifference)}`
+      `${filesize(diff.currentSize)}`,
+      `${diff.sizeDifference > 0 ? '+' : ''}${filesize(diff.sizeDifference)}`
     ])
   } else {
-    sizeTableRows.push(['Size', fileSize(diff.currentTextSize), ''])
+    sizeTableRows.push(['Size', filesize(diff.currentTextSize), ''])
   }
 
   if (shouldIncludeInDiff(diff.currentTextSize, diff.oldTextSize)) {
-    sizeTableRows.push(['- Text Size', fileSize(diff.oldTextSize), ''])
+    sizeTableRows.push(['- Text Size', filesize(diff.oldTextSize), ''])
     sizeTableRows.push([
       '+ Text Size',
-      `${fileSize(diff.currentTextSize)}`,
-      `${diff.textDifference > 0 ? '+' : ''}${fileSize(diff.textDifference)}`
+      `${filesize(diff.currentTextSize)}`,
+      `${diff.textDifference > 0 ? '+' : ''}${filesize(diff.textDifference)}`
     ])
   } else {
-    sizeTableRows.push(['Text size', fileSize(diff.currentTextSize), ''])
+    sizeTableRows.push(['Text size', filesize(diff.currentTextSize), ''])
   }
 
   const crateTable = table(crateTableRows)

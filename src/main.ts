@@ -70,7 +70,7 @@ async function main(): Promise<void> {
   try {
     await run()
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed((error as Error).message)
   }
 }
 
